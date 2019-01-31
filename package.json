@@ -20,7 +20,7 @@
     "test": "mocha \"./src/**/*.test.js\" --require babel-core/register --require ./mocha-bootstrap --timeout 5000",
     "test:watch": "npm run test -- --watch",
     "lint": "eslint src",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "lint-staged": "lint-staged",
     "dev": "node example/devServer.js"
   },
