@@ -29,6 +29,10 @@ function last(arr) {
 }
 
 function sheetForTag(tag) {
+  if (tag.sheet) {
+    return tag.sheet
+  }
+
   for(let i = 0; i < document.styleSheets.length; i++) {
     if(document.styleSheets[i].ownerNode === tag) {
       return document.styleSheets[i]
@@ -48,11 +52,12 @@ const oldIE = (() => {
   }
 })()
 
-function makeStyleTag() {
+function makeStyleTag(target) {
   let tag = document.createElement('style')
   tag.type = 'text/css'
+  tag.setAttribute('data-glamor', '')
   tag.appendChild(document.createTextNode(''));
-  (document.head || document.getElementsByTagName('head')[0]).appendChild(tag)
+  target.appendChild(tag)
   return tag
 }
 
@@ -66,6 +71,7 @@ export class StyleSheet {
     this.sheet = undefined
     this.tags = []
     this.maxLength = maxLength
+    this.target = (document.head || document.getElementsByTagName('head')[0])
     this.ctr = 0
   }
   inject() {
@@ -74,7 +80,7 @@ export class StyleSheet {
     }
     if(isBrowser) {
       // this section is just weird alchemy I found online off many sources
-      this.tags[0] = makeStyleTag()
+      this.tags[0] = makeStyleTag(this.target)
       // this weirdness brought to you by firefox
       this.sheet = sheetForTag(this.tags[0])
     }
@@ -139,7 +145,7 @@ export class StyleSheet {
 
     this.ctr++
     if(isBrowser && this.ctr % this.maxLength === 0) {
-      this.tags.push(makeStyleTag())
+      this.tags.push(makeStyleTag(this.target))
       this.sheet = sheetForTag(last(this.tags))
     }
     return insertedRule
@@ -167,5 +173,13 @@ export class StyleSheet {
         sheetForTag(tag).cssRules
       )))
     return arr
+  }
+  styleTarget (target) {
+    if (target != this.target) {
+      this.target = target
+      if (isBrowser && this.injected) {
+        this.tags.forEach(tag => tag.parentNode.removeChild(tag) && target.appendChild(tag))
+      }
+    }
   }
 }
