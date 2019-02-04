@@ -71,8 +71,11 @@ export class StyleSheet {
     this.sheet = undefined
     this.tags = []
     this.maxLength = maxLength
-    this.target = (document.head || document.getElementsByTagName('head')[0])
     this.ctr = 0
+
+    if (isBrowser) {
+      this.target = (document.head || document.getElementsByTagName('head')[0])
+    }
   }
   inject() {
     if(this.injected) {
